@@ -52,12 +52,32 @@ uint16_t stack_pop() {
     return(stack[stack_top--]);
 }
 
-// TODO: implement. 
-// this can be split into 3 tasks:
-// fetch instruction from memory at current pc
-// decode instruction to decide what to do
-// execute the instruction
+// TODO: implement
+int decode(uint8_t op) {
+    switch(op) {
+        default:
+            return -1;
+    }
+    return 0;
+}
+
+// TODO: implement.
+uint8_t fetch() {
+    return 0;
+}
+
 int chip_cycle() {
+    uint8_t op = fetch();
+    if(op < 0) {
+        printf("ERROR: Failed to get instruction at: %p", pc);
+        return -1;
+    }
+
+    if(decode(op) != 0) {
+        printf("ERROR: Failed to decode instruction: %i", (int)op);
+        return -1;
+    }
+
     return 0;
 }
 
