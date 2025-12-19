@@ -1,4 +1,5 @@
 #include "chip.h"
+#include "usage.h"
 
 #include <stdio.h>
 #include <SDL3/SDL.h>
@@ -61,7 +62,44 @@ void program_loop() {
     }
 }
 
+/*
+ * parse input in argv and act accordingly
+ * successful parse returns 0.
+ * no args or "-h" returns 1
+ * failed parse returns -1
+ */
+int parse_input(char *argv[]) {
+    // if no arguments, return immediately
+    if (argv[1] == NULL) {
+        print_usage();
+        return 1;
+    }
+
+    int i=1;
+    while(argv[i]!=NULL) {
+        printf("argv[%d]: %s\n", i, argv[i]);
+        if (strcmp(argv[i], "-h") == 0) {
+            print_usage();
+            return 1;
+        } else {
+            printf("ERROR: Could not parse input.\n");
+            print_usage();
+            return -1;
+        }
+        i++;
+    }
+
+    return 0;
+}
+
 int main(int argc, char *argv[]) {
+    int status = parse_input(argv);
+    if(status < 0) {
+        return -1;
+    } else if (status > 0) {
+        return 0;
+    }
+
     if(init_sdl() != 0) {
         return -1;
     }
