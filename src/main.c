@@ -87,7 +87,7 @@ int main(int argc, char *argv[]) {
         return -1;
     }
 
-    if(chip_init() != 0) {
+    if(chip_init(file) != 0) {
         chip_clean();
         return -1;
     }

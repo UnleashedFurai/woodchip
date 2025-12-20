@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdint.h>
+#include <string.h>
 
 #define STACK_MAX 16
 #define REGISTERS 16
@@ -52,6 +53,13 @@ uint16_t stack_pop() {
     return(stack[stack_top--]);
 }
 
+size_t filesize(FILE* f) {
+    fseek(f, 0L, SEEK_END);
+    size_t s = ftell(f);
+    fseek(f, 0L, SEEK_SET);
+    return s;
+}
+
 // TODO: implement
 int decode(uint8_t op) {
     switch(op) {
@@ -81,7 +89,9 @@ int chip_cycle() {
     return 0;
 }
 
-int chip_init() {
+int chip_init(char* filename) {
+    printf("file received %s\n", filename);
+
     ramPtr = malloc(RAM);
     if (!ramPtr) {
         printf("ERROR: Failed to allocate RAM.\n");
@@ -89,6 +99,25 @@ int chip_init() {
     }
 
     pc = ramPtr + 0x200;
+
+    // load the rom
+    FILE *f = fopen(filename, "rb");
+    if (!f) {
+        printf("ERROR: File %s could not be loaded.\n", filename);
+        return -1;
+    }
+
+    size_t size = filesize(f);
+
+    size_t read = fread(pc, 1, size, f);
+    if (read != size) {
+        printf("ERROR: Failed to copy file to RAM.\n");
+    }
+
+    printf("%02x %02x %02x %02x \n", pc[0], pc[1], pc[2], pc[3]);
+
+    // unload file
+    fclose(f);
 
     return 0;
 }
