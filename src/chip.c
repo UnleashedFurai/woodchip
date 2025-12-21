@@ -86,12 +86,17 @@ int chip_cycle() {
         return -1;
     }
 
+    // decremet timers
+    if (delay_timer > 0) delay_timer--;
+    if (sound_timer > 0) {
+        // play sound
+        sound_timer--;
+    }
+
     return 0;
 }
 
 int chip_init(char* filename) {
-    printf("file received %s\n", filename);
-
     ramPtr = malloc(RAM);
     if (!ramPtr) {
         printf("ERROR: Failed to allocate RAM.\n");
@@ -113,8 +118,6 @@ int chip_init(char* filename) {
     if (read != size) {
         printf("ERROR: Failed to copy file to RAM.\n");
     }
-
-    printf("%02x %02x %02x %02x \n", pc[0], pc[1], pc[2], pc[3]);
 
     // unload file
     fclose(f);
