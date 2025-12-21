@@ -78,6 +78,8 @@ void program_loop() {
             }
         }
 
+        chip_cycle();
+
         SDL_SetRenderDrawColor(sdl_renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
         SDL_RenderPresent(sdl_renderer);
 

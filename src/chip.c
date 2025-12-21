@@ -62,27 +62,31 @@ size_t filesize(FILE* f) {
 
 // TODO: implement
 int decode(uint8_t op) {
+    /*
     switch(op) {
         default:
             return -1;
     }
+    */
     return 0;
 }
 
-// TODO: implement.
-uint8_t fetch() {
-    return 0;
+uint16_t fetch() {
+    uint16_t op = (pc[0] << 8) | pc[1];
+
+    pc=pc+sizeof(uint16_t);
+    return op;
 }
 
 int chip_cycle() {
-    uint8_t op = fetch();
-    if(op < 0) {
-        printf("ERROR: Failed to get instruction at: %p", pc);
+    uint16_t op = fetch();
+    if(!op) {
+        printf("ERROR: Failed to get instruction at: %p\n", pc);
         return -1;
     }
 
     if(decode(op) != 0) {
-        printf("ERROR: Failed to decode instruction: %i", (int)op);
+        printf("ERROR: Failed to decode instruction: %b\n", op);
         return -1;
     }
 
