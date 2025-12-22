@@ -95,6 +95,8 @@ void program_loop() {
         uint64_t fps = 10000000 / render_time;
         printf("fps: %ld\n", fps);
         */
+
+        running=1;
     }
 }
 

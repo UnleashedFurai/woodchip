@@ -61,13 +61,324 @@ size_t filesize(FILE* f) {
 }
 
 // TODO: implement
-int decode(uint8_t op) {
-    /*
-    switch(op) {
+int decode(uint16_t op) {
+    // get each individual op
+    uint8_t ops[4];
+    ops[0] = (op & 0xF000) >> 12;
+    ops[1] = (op & 0x0F00) >> 8;
+    ops[2] = (op & 0x00F0) >> 4;
+    ops[3] = (op & 0x000F) >> 0;
+
+    switch(ops[0]) {
+        case 0x0:
+            switch(ops[2]) {
+                case 0xE:
+                    switch(ops[3]) {
+                        case 0x0:
+                            // 00E0
+                            // clear the screen
+                            // TODO; implement
+                            break;
+                        case 0xE:
+                            // 00EE
+                            // return from a subroutine
+                            // TODO: implement
+                            break;
+                        default:
+                            return -1;
+                    }
+
+                default:
+                    // 0NNN
+                    // execute machine language subroutine at address NNN
+                    // TODO: implement
+                    uint16_t address = op & 0x0FFF;
+                    break;
+            }
+            break;
+
+        case 0x1:
+            // 1NNN
+            // jump to address NNN
+            uint16_t offset = op & 0x0FFF;
+            pc = ramPtr + offset;
+            break;
+            
+        case 0x2:
+            // 2NNN
+            // execute subroutine startign at address NNN
+            // TODO: implement
+            // should be about the same as 0NNN
+            uint16_t address = op & 0x0FFF;
+            break;
+
+        case 0x3:
+            // 3XNN
+            // skip the following instruction if the value of VX equals NN
+            // TODO: implemet
+            break;
+
+        case 0x4:
+            // 4XNN
+            // skip the following instruction if the value of VX is nnont equal to NN
+            // TODO: implemet
+            break;
+
+        case 0x5:
+            // 5XY0
+            // skip the following instructionn if the value of VX is equal to the value of VY
+            // TODO: implemet
+            break;
+
+        case 0x6:
+            // 6XNN
+            // store NN in VX
+            // TODO: implemet
+            break;
+
+        case 0x7:
+            // 7XNN
+            // add NN to VX
+            // TODO: implemet
+            break;
+
+        case 0x8:
+            switch(ops[3]) {
+                case 0x0:
+                    // 8XY0
+                    // store the value of VY in VX
+                    // TODO: implemet
+                    break;
+                
+                case 0x1:
+                    // 8XY1
+                    // set VX to VX OR VY
+                    // TODO: implemet
+                    break;
+
+                case 0x2:
+                    // 8XY2
+                    // set VX to VX AND VY
+                    // TODO: implemet
+                    break;
+
+                case 0x3:
+                    // 8XY3
+                    // set VX to VX XOR VY
+                    // TODO: implemet
+                    break;
+
+                case 0x4:
+                    // 8XY4
+                    // add the value of VY to VX
+                    // set VF to 01 if a carry occurs
+                    // set VF to 00 if no carry occurs
+                    // TODO: implemet
+                    break;
+
+                case 0x5:
+                    // 8XY5
+                    // subtract the value of VY from VX
+                    // set VF to 00 if a borrow occurs
+                    // set VF to 01 if no borrow occurs
+                    // TODO: implemet
+                    break;
+
+                case 0x6:
+                    // 8XY6
+                    // store the value of VY shifted right one bit in VX
+                    // set VF to the least significant bit prior to the shift
+                    // VY is unchanged
+                    // TODO: implemet
+                    break;
+
+                case 0x7:
+                    // 8XY7
+                    // set VX to the value of VY minux VX
+                    // set VF to 00 if a borrow occurs
+                    // set VF to 01 if a no borrow occurs
+                    // TODO: implement
+                    break;
+
+                case 0xE:
+                    // 8XYE
+                    // store the value of VY shifted left one bit in VX
+                    // set VF to the most significant bit prior to the shift
+                    // VY is unchanged
+                    // TODO: implement
+                    break;
+
+                default:
+                    return -1;
+            }
+            break;
+
+        case 0x9:
+            switch(ops[3]) {
+                case 0x0:
+                    // 9XY0
+                    // skip the folowing instruction if the value of VX is not equal to the value of VY
+                    // TODO: implement
+                default:
+                    // illegal instruction
+                    return -1;
+            }
+            break;
+
+        case 0xA:
+            // ANNN
+            // store memory address NNN in index
+            // TODO: implement
+            break;
+            
+        case 0xB:
+            // BNNN
+            // jump to address NNN + V0
+            // TODO: implement
+            break;
+
+        case 0xC:
+            // CXNN
+            // set VX to a random number with a mask of NN
+            // TODO: implement
+            break;
+
+        case 0xD:
+            // DXYN
+            // draw a sprite at position VX, VY with N bytes of sprite data starting at the address stored in index
+            // set VF to 01 if any pixels are changed to unset, 00 otherwise
+            // TODO: implement
+            break;
+
+        case 0xE:
+            switch(ops[2]) {
+                case 0x9:
+                    // EX9E
+                    // skip the following instruction if the key corresponding to the hex value curretly stored in VX is pressed
+                    // TODO implement
+                    break;
+
+                case 0xA:
+                    // EXA1
+                    // skip the followig instruction if the key corresponding to the hex value currently stored in VX is not pressed
+                    // TODO implement
+                    break;
+
+                default:
+                    // illegal instruction
+                    return -1;
+            }
+            break;
+
+        case 0xF:
+            switch(ops[2]) {
+                case 0x0:
+                    switch(ops[3]) {
+                        case 0x7:
+                            // FX07
+                            // store the current value of the delay timer in VX
+                            // TODO implement
+                            break;
+
+                        case 0xA:
+                            // FX0A
+                            // wait for a keypress and store the result in VX
+                            // TODO implement
+                            break;
+
+                        default:
+                            // illegal instruction
+                            return -1;
+                    }
+
+                case 0x1:
+                    switch(ops[3]) {
+                        case 0x5:
+                            // FX15
+                            // set the delay timer to the value of VX
+                            // TODO implement
+                            break;
+                        
+                        case 0x8:
+                            // FX18
+                            // set the sound timer t the value of register VX
+                            // TODO implement
+                            break;
+
+                        case 0xE:
+                            // FX1E
+                            // add the value stred in VX to index
+                            // TODO implemet
+                            break;
+
+                        default:
+                            // illegal instruction
+                            return -1;
+                    }
+
+                case 0x2:
+                    switch(ops[3]) {
+                        case 0x9:
+                            // FX29
+                            // set index to the memory address of the sprite data corresponding to the hexademical digit stored in VX
+                            // TODO implement
+                            break;
+
+                        default:
+                            // illegal instruction
+                            return -1;
+                        }
+
+                case 0x3:
+                    switch(ops[3]) {
+                        case 0x3:
+                            // FX33
+                            // store the binary-coded decimal equivalent of the value stored in VX at addresses idnex, idex+1, index+2
+                            // TODO implement
+                            break;
+
+                        default:
+                            // illegal instruction
+                            return -1;
+                        }
+
+                case 0x5:
+                    switch(ops[3]) {
+                        case 0x5:
+                            // FX55
+                            // store the values of V0-VX inclusive in memory starting at index
+                            // index is set to idnex + X + 1 after operation
+                            // TODO implemetn
+                            break;
+
+                        default:
+                            // illegal instruction
+                            return -1;
+                    }
+
+                case 0x6:
+                    switch(ops[3]) {
+                        case 0x5:
+                            // FX65
+                            // fill registers V0-VX inclusive with the values stored in memory starting at index
+                            // index is set to index + x + 1 after operation
+                            break;
+
+                        default:
+                            // illegal instructio
+                            return -1;
+                    }
+
+                default:
+                    // illegal instruction
+                    return -1;
+            }
+            break;
+
         default:
+            // illegal instruction
             return -1;
     }
-    */
     return 0;
 }
 
@@ -103,6 +414,9 @@ int chip_cycle() {
 }
 
 int chip_init(char* filename) {
+    // zero the registers
+    for(int i=0; i<REGISTERS; i++) registers[i] = 0;
+
     ramPtr = malloc(RAM);
     if (!ramPtr) {
         printf("ERROR: Failed to allocate RAM.\n");
