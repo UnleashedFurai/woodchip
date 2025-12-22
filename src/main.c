@@ -99,6 +99,8 @@ void program_loop() {
 }
 
 
+// TODO: add more commandline args
+// consider for fullscreen, window size, and instructions per second
 int main(int argc, char *argv[]) {
     char *file;
     // if no arguments, return immediately

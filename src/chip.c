@@ -78,6 +78,8 @@ uint16_t fetch() {
     return op;
 }
 
+// TODO: run n instructios per second
+// maybe start around 700?
 int chip_cycle() {
     uint16_t op = fetch();
     if(!op) {
@@ -93,7 +95,7 @@ int chip_cycle() {
     // decremet timers
     if (delay_timer > 0) delay_timer--;
     if (sound_timer > 0) {
-        // play sound
+        // TODO: play sound
         sound_timer--;
     }
 
