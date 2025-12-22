@@ -14,10 +14,13 @@
 #define SDL_WINDOW_WIDTH            (CHIP_8_WIDTH * WINDOW_SIZE_MODIFIER)
 #define SDL_WINDOW_HEIGHT           (CHIP_8_HEIGHT * WINDOW_SIZE_MODIFIER)
 #define SDL_FPS                     60      /* we run at 60 fps, the same speed as the chip-8 timers */
+#define BLACK                       0 ,0 ,0 ,255
+#define WHITE                       255, 255, 255, 255
 
 SDL_Window* sdl_window;
 SDL_Renderer* sdl_renderer;
 SDL_Event sdl_event;
+uint8_t pixels[CHIP_8_WIDTH][CHIP_8_HEIGHT] = {0};
 
 int init_sdl() {
     if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS)) {
@@ -80,7 +83,18 @@ void program_loop() {
 
         chip_cycle();
 
-        SDL_SetRenderDrawColor(sdl_renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
+        for (int i=0; i<CHIP_8_WIDTH; i++) {
+            for (int j=0; j<CHIP_8_HEIGHT; j++) {
+                if (pixels[i][j] > 0) {
+                    SDL_SetRenderDrawColor(sdl_renderer, WHITE);
+                } else {
+                    SDL_SetRenderDrawColor(sdl_renderer, BLACK);
+                }
+                SDL_FRect f = {i * WINDOW_SIZE_MODIFIER, j * WINDOW_SIZE_MODIFIER, WINDOW_SIZE_MODIFIER, WINDOW_SIZE_MODIFIER};
+                SDL_RenderFillRect(sdl_renderer, &f);
+            }
+        }
+
         SDL_RenderPresent(sdl_renderer);
 
         // cap at 60FPS
@@ -95,8 +109,6 @@ void program_loop() {
         uint64_t fps = 10000000 / render_time;
         printf("fps: %ld\n", fps);
         */
-
-        running=1;
     }
 }
 
