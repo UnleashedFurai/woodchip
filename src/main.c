@@ -1,6 +1,7 @@
 #include "chip.h"
 #include "usage.h"
 
+#include <SDL3/SDL_scancode.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <SDL3/SDL.h>
@@ -80,6 +81,64 @@ void program_loop() {
                         case SDL_SCANCODE_ESCAPE:
                             running = -1;
                             break;
+
+                        /*
+                         * the key layout is as follows
+                         *     qwerty            chip-8
+                         *   1  2  3  4        1  2  3  C
+                         *   Q  W  E  R        4  5  6  D
+                         *   A  S  D  F        7  8  9  E
+                         *   Z  X  C  V        A  0  B  F
+                         */
+                        // TODO: send input to chip.c
+                        case SDL_SCANCODE_1:
+                            break;
+
+                        case SDL_SCANCODE_2:
+                            break;
+
+                        case SDL_SCANCODE_3:
+                            break;
+
+                        case SDL_SCANCODE_4:
+                            break;
+
+                        case SDL_SCANCODE_Q:
+                            break;
+
+                        case SDL_SCANCODE_W:
+                            break;
+
+                        case SDL_SCANCODE_E:
+                            break;
+
+                        case SDL_SCANCODE_R:
+                            break;
+
+                        case SDL_SCANCODE_A:
+                            break;
+
+                        case SDL_SCANCODE_S:
+                            break;
+
+                        case SDL_SCANCODE_D:
+                            break;
+
+                        case SDL_SCANCODE_F:
+                            break;
+
+                        case SDL_SCANCODE_Z:
+                            break;
+
+                        case SDL_SCANCODE_X:
+                            break;
+
+                        case SDL_SCANCODE_C:
+                            break;
+
+                        case SDL_SCANCODE_V:
+                            break;
+
                         default:
                             break;
                     }
