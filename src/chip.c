@@ -1,7 +1,10 @@
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdint.h>
 #include <string.h>
+
+#include "main.h"
 
 #define STACK_MAX 16
 #define REGISTERS 16
@@ -92,7 +95,7 @@ int decode(uint16_t op) {
                     // 0NNN
                     // execute machine language subroutine at address NNN
                     // TODO: implement
-                    uint16_t address = op & 0x0FFF;
+                    // uint16_t address = op & 0x0FFF;
                     break;
             }
             break;
@@ -109,7 +112,7 @@ int decode(uint16_t op) {
             // execute subroutine startign at address NNN
             // TODO: implement
             // should be about the same as 0NNN
-            uint16_t address = op & 0x0FFF;
+            // uint16_t address = op & 0x0FFF;
             break;
 
         case 0x3:

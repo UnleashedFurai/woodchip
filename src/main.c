@@ -58,6 +58,13 @@ int destroy_sdl() {
     return 0;
 }
 
+// sets color of pixel at x,y
+// color = 0 is black.
+// color = 1 is white.
+void set_pixel(int x, int y, uint8_t color) {
+    pixels[x][y] = color;
+}
+
 void program_loop() {
     int running = 0;
     while (running == 0) {
@@ -111,7 +118,6 @@ void program_loop() {
         */
     }
 }
-
 
 // TODO: add more commandline args
 // consider for fullscreen, window size, and instructions per second
