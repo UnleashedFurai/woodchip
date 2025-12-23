@@ -155,7 +155,7 @@ int decode(uint16_t op) {
                 case 0x1:
                     // 8XY1
                     // set VX to VX OR VY
-                    // TODO: implemet
+                    registers[ops[1]] = registers[ops[1]] | registers[ops[2]];
                     break;
 
                 case 0x2:
