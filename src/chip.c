@@ -268,7 +268,8 @@ int decode(uint16_t op) {
                     pixels[x][y] ^= 1;
                 }
             }
-            break;
+            // break;
+            return 1;
 
         case 0xE:
             switch(ops[2]) {
@@ -411,6 +412,7 @@ uint16_t fetch() {
 
 // TODO: run n instructios per second
 // maybe start around 700?
+// returns 1 if screen needs to be updated
 int chip_cycle() {
     uint16_t op = fetch();
     if(!op) {
@@ -418,7 +420,8 @@ int chip_cycle() {
         return -1;
     }
 
-    if(decode(op) != 0) {
+    int decode_status = decode(op);
+    if(decode_status < 0) {
         printf("ERROR: Failed to decode instruction: %b\n", op);
         return -1;
     }
@@ -430,7 +433,7 @@ int chip_cycle() {
         sound_timer--;
     }
 
-    return 0;
+    return (decode_status == 1) ? 1 : 0;
 }
 
 int chip_init(char* filename) {

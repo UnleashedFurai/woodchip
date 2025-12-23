@@ -144,9 +144,7 @@ void program_loop() {
             }
         }
 
-        chip_cycle();
-
-        draw_screen();
+        if(chip_cycle()==1) draw_screen();
 
         // cap at 60FPS
         uint64_t render_time = SDL_GetTicksNS() - render_start;
