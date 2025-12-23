@@ -135,7 +135,8 @@ int decode(uint16_t op) {
         case 0x6:
             // 6XNN
             // store NN in VX
-            // TODO: implemet
+            uint8_t nn = op & 0x00FF;
+            registers[ops[1]] = nn;
             break;
 
         case 0x7:
