@@ -311,6 +311,7 @@ int decode(uint16_t op) {
                             // illegal instruction
                             return -1;
                     }
+                    break;
 
                 case 0x1:
                     switch(ops[3]) {
@@ -329,13 +330,16 @@ int decode(uint16_t op) {
                         case 0xE:
                             // FX1E
                             // add the value stred in VX to index
-                            // TODO implemet
+                            uint16_t idx_tmp = idx;
+                            idx += registers[ops[1]];
+                            if (idx_tmp > idx) registers[0xF] = 1;
                             break;
 
                         default:
                             // illegal instruction
                             return -1;
                     }
+                    break;
 
                 case 0x2:
                     switch(ops[3]) {
@@ -349,6 +353,7 @@ int decode(uint16_t op) {
                             // illegal instruction
                             return -1;
                         }
+                    break;
 
                 case 0x3:
                     switch(ops[3]) {
@@ -362,6 +367,7 @@ int decode(uint16_t op) {
                             // illegal instruction
                             return -1;
                         }
+                    break;
 
                 case 0x5:
                     switch(ops[3]) {
@@ -376,6 +382,7 @@ int decode(uint16_t op) {
                             // illegal instruction
                             return -1;
                     }
+                    break;
 
                 case 0x6:
                     switch(ops[3]) {
@@ -389,6 +396,7 @@ int decode(uint16_t op) {
                             // illegal instructio
                             return -1;
                     }
+                    break;
 
                 default:
                     // illegal instruction
