@@ -149,7 +149,7 @@ int decode(uint16_t op) {
                 case 0x0:
                     // 8XY0
                     // store the value of VY in VX
-                    // TODO: implemet
+                    registers[ops[1]] = registers[ops[2]];
                     break;
                 
                 case 0x1:
