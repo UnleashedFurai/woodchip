@@ -1,10 +1,9 @@
+#include "macros.h"
 
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdint.h>
 #include <string.h>
-
-#include "main.h"
 
 #define STACK_MAX 16
 #define REGISTERS 16
@@ -36,6 +35,7 @@ uint8_t font[80] = {            /* standard chip-8 font */
     0xF0, 0x80, 0xF0, 0x80, 0xF0, // E
     0xF0, 0x80, 0xF0, 0x80, 0x80  // F
 };
+uint8_t pixels[CHIP_8_WIDTH][CHIP_8_HEIGHT] = {0};
 
 int stack_push(uint16_t in) {
     if (stack_top >= STACK_MAX) {
@@ -63,7 +63,6 @@ size_t filesize(FILE* f) {
     return s;
 }
 
-// TODO: implement
 int decode(uint16_t op) {
     // get each individual op
     uint8_t ops[4];

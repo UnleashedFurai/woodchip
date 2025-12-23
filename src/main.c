@@ -1,5 +1,6 @@
 #include "chip.h"
 #include "usage.h"
+#include "macros.h"
 
 #include <SDL3/SDL_scancode.h>
 #include <stdint.h>
@@ -7,21 +8,9 @@
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_main.h>
 
-#define CHIP_8_WIDTH                64      /* width of chip-8 in pixels */
-#define CHIP_8_HEIGHT               32      /* height of chip-8 in pixels */
-#define WINDOW_SIZE_MODIFIER        16      /* the amount the window size is multiplied by */
-
-#define SDL_WINDOW_TITLE            "woodchip"
-#define SDL_WINDOW_WIDTH            (CHIP_8_WIDTH * WINDOW_SIZE_MODIFIER)
-#define SDL_WINDOW_HEIGHT           (CHIP_8_HEIGHT * WINDOW_SIZE_MODIFIER)
-#define SDL_FPS                     60      /* we run at 60 fps, the same speed as the chip-8 timers */
-#define BLACK                       0 ,0 ,0 ,255
-#define WHITE                       255, 255, 255, 255
-
 SDL_Window* sdl_window;
 SDL_Renderer* sdl_renderer;
 SDL_Event sdl_event;
-uint8_t pixels[CHIP_8_WIDTH][CHIP_8_HEIGHT] = {0};
 
 int init_sdl() {
     if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS)) {
@@ -62,9 +51,6 @@ int destroy_sdl() {
 // sets color of pixel at x,y
 // color = 0 is black.
 // color = 1 is white.
-void set_pixel(int x, int y, uint8_t color) {
-    pixels[x][y] = color;
-}
 
 void program_loop() {
     int running = 0;
