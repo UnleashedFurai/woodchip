@@ -422,7 +422,7 @@ int chip_cycle() {
 
     int decode_status = decode(op);
     if(decode_status < 0) {
-        printf("ERROR: Failed to decode instruction: %b\n", op);
+        printf("ERROR: Failed to decode instruction: %x\n", op);
         return -1;
     }
 
