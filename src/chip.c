@@ -79,7 +79,7 @@ int decode(uint16_t op) {
                         case 0x0:
                             // 00E0
                             // clear the screen
-                            // TODO; implement
+                            memset(pixels, 0, sizeof(pixels));
                             break;
                         case 0xE:
                             // 00EE
