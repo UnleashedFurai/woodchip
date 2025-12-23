@@ -102,8 +102,7 @@ int decode(uint16_t op) {
         case 0x1:
             // 1NNN
             // jump to address NNN
-            uint16_t offset = op & 0x0FFF;
-            pc = ramPtr + offset;
+            pc = ramPtr + (op & 0x0FFF);
             break;
             
         case 0x2:
@@ -231,7 +230,7 @@ int decode(uint16_t op) {
         case 0xA:
             // ANNN
             // store memory address NNN in index
-            // TODO: implement
+            idx = op & 0x0FFF;
             break;
             
         case 0xB:
