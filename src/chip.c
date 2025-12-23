@@ -249,7 +249,25 @@ int decode(uint16_t op) {
             // DXYN
             // draw a sprite at position VX, VY with N bytes of sprite data starting at the address stored in index
             // set VF to 01 if any pixels are changed to unset, 00 otherwise
-            // TODO: implement
+            int vx = registers[ops[1]];
+            int vy = registers[ops[2]];
+
+            registers[0xF] = 0;
+
+            for(int i=0; i<ops[3]; i++) {
+                uint8_t sprite = ramPtr[idx+i];
+                for(int j=0; j<8; j++) {
+                    uint8_t pixel = (sprite >> (7-j)) & 0x1;
+                    if (pixel == 0) continue;
+
+                    int x = (vx+j) % CHIP_8_WIDTH;
+                    int y = (vy+i) % CHIP_8_HEIGHT;
+
+                    if (pixels[x][y] == 1)
+                        registers[0xF] = 1;
+                    pixels[x][y] ^= 1;
+                }
+            }
             break;
 
         case 0xE:

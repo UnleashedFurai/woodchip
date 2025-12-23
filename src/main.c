@@ -48,9 +48,20 @@ int destroy_sdl() {
     return 0;
 }
 
-// sets color of pixel at x,y
-// color = 0 is black.
-// color = 1 is white.
+void draw_screen() {
+   for (int i=0; i<CHIP_8_WIDTH; i++) {
+       for (int j=0; j<CHIP_8_HEIGHT; j++) {
+           if (pixels[i][j] > 0) {
+               SDL_SetRenderDrawColor(sdl_renderer, WHITE);
+           } else {
+               SDL_SetRenderDrawColor(sdl_renderer, BLACK);
+           }
+           SDL_FRect f = {i * WINDOW_SIZE_MODIFIER, j * WINDOW_SIZE_MODIFIER, WINDOW_SIZE_MODIFIER, WINDOW_SIZE_MODIFIER};
+           SDL_RenderFillRect(sdl_renderer, &f);
+       }
+   }
+   SDL_RenderPresent(sdl_renderer);
+}
 
 void program_loop() {
     int running = 0;
@@ -135,19 +146,7 @@ void program_loop() {
 
         chip_cycle();
 
-        for (int i=0; i<CHIP_8_WIDTH; i++) {
-            for (int j=0; j<CHIP_8_HEIGHT; j++) {
-                if (pixels[i][j] > 0) {
-                    SDL_SetRenderDrawColor(sdl_renderer, WHITE);
-                } else {
-                    SDL_SetRenderDrawColor(sdl_renderer, BLACK);
-                }
-                SDL_FRect f = {i * WINDOW_SIZE_MODIFIER, j * WINDOW_SIZE_MODIFIER, WINDOW_SIZE_MODIFIER, WINDOW_SIZE_MODIFIER};
-                SDL_RenderFillRect(sdl_renderer, &f);
-            }
-        }
-
-        SDL_RenderPresent(sdl_renderer);
+        draw_screen();
 
         // cap at 60FPS
         uint64_t render_time = SDL_GetTicksNS() - render_start;
