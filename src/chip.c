@@ -331,8 +331,7 @@ int decode(uint16_t op) {
                         case 0x7:
                             // FX07
                             // store the current value of the delay timer in VX
-                            // TODO implement
-                            return -1;
+                            registers[ops[1]] = delay_timer;
                             break;
 
                         case 0xA:
