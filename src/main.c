@@ -2,14 +2,19 @@
 #include "usage.h"
 #include "macros.h"
 
+#include <stdlib.h>
 #include <stdint.h>
 #include <stdio.h>
+#include <time.h>
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_main.h>
 
 SDL_Window* sdl_window;
 SDL_Renderer* sdl_renderer;
 SDL_Event sdl_event;
+
+int WINDOW_SIZE_MODIFIER = 16;
+int CHIP_8_CYCLES_PER_FRAME = 12;
 
 int init_sdl() {
     if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS)) {
@@ -153,9 +158,9 @@ void program_loop() {
     }
 }
 
-// TODO: add more commandline args
-// consider for fullscreen, window size, and instructions per second
 int main(int argc, char *argv[]) {
+    srand(time(NULL));
+
     char *file;
     // if no arguments, return immediately
     if (argc == 1) {
@@ -169,6 +174,20 @@ int main(int argc, char *argv[]) {
         if (strcmp(argv[i], "-h") == 0) {
             print_usage();
             return 0;
+        } else if (strcmp(argv[i], "-w") == 0) {
+            if (argv[++i]) {
+                WINDOW_SIZE_MODIFIER = atoi(argv[i]);
+            } else {
+                print_usage();
+                return 0;
+            }
+        } else if (strcmp(argv[i], "-t") == 0) {
+            if (argv[++i]) {
+                CHIP_8_CYCLES_PER_FRAME = atoi(argv[i]);
+            } else {
+                print_usage();
+                return 0;
+            }
         }
     }
 

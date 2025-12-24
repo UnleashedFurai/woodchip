@@ -3,8 +3,6 @@
 
 #define CHIP_8_WIDTH                64      /* width of chip-8 in pixels */
 #define CHIP_8_HEIGHT               32      /* height of chip-8 in pixels */
-#define WINDOW_SIZE_MODIFIER        16      /* the amount the window size is multiplied by */
-#define CHIP_8_CYCLES_PER_FRAME     12      /* the number of chip-8 cpu cycles to execute per frame */
 
 #define SDL_WINDOW_TITLE            "woodchip"
 #define SDL_WINDOW_WIDTH            (CHIP_8_WIDTH * WINDOW_SIZE_MODIFIER)
