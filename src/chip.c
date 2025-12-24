@@ -131,12 +131,13 @@ int decode(uint16_t op) {
             break;
         }
 
-        case 0x4:
+        case 0x4: {
             // 4XNN
             // skip the following instruction if the value of VX is nnont equal to NN
-            // TODO: implemet
-            return -1;
+            uint8_t nn = op & 0x00FF;
+            if (registers[ops[1]] != nn) pc += sizeof(uint16_t);
             break;
+        }
 
         case 0x5:
             // 5XY0
