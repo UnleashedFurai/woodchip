@@ -11,6 +11,7 @@
 const size_t RAM = 4096;            /* number of bytes in 4kb. size of RAM */
 uint8_t *ram_ptr;                   /* pointer to our emulated RAM */
 uint8_t *pc;                        /* our program counter */
+uint8_t *font_ptr;                  /* points to font location in ram */
 uint16_t idx = 0;                   /* the index register */
 uint16_t stack[STACK_MAX];          /* array for stack */
 uint8_t stack_top = 0;              /* index of current position in stack */
@@ -400,8 +401,7 @@ int decode(uint16_t op) {
                         case 0x9:
                             // FX29
                             // set index to the memory address of the sprite data corresponding to the hexademical digit stored in VX
-                            // TODO implement
-                            return -1;
+                            idx = ram_ptr - (font_ptr + ops[1]*(5*sizeof(uint8_t)));
                             break;
 
                         default:
@@ -413,7 +413,7 @@ int decode(uint16_t op) {
                 case 0x3:
                     switch(ops[3]) {
                         case 0x3:
-                            // FX33
+                            // X33
                             // store the binary-coded decimal equivalent of the value stored in VX at addresses idnex, idex+1, index+2
                             // TODO implement
                             return -1;
@@ -475,8 +475,12 @@ uint16_t fetch() {
     return op;
 }
 
-// TODO: run n instructios per second
-// maybe start around 700?
+int decrement_timers() {
+    if (delay_timer > 0) delay_timer --;
+    if (sound_timer > 0) sound_timer --;
+    return 0;
+}
+
 // returns 1 if screen needs to be updated
 int chip_cycle() {
     uint16_t op = fetch();
@@ -490,10 +494,8 @@ int chip_cycle() {
     }
 
     // decremet timers
-    if (delay_timer > 0) delay_timer--;
     if (sound_timer > 0) {
         // TODO: play sound
-        sound_timer--;
     }
 
     return (decode_status == 1) ? 1 : 0;
@@ -507,9 +509,10 @@ int chip_init(char* filename) {
     }
 
     pc = ram_ptr + 0x200;
+    font_ptr = ram_ptr + 0x50;
 
     // load the font
-    memcpy(ram_ptr + 0x50, font, sizeof(font));
+    memcpy(font_ptr, font, sizeof(font));
 
     // load the rom
     FILE *f = fopen(filename, "rb");
