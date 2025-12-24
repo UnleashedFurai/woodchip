@@ -36,6 +36,7 @@ uint8_t font[80] = {                /* standard chip-8 font */
     0xF0, 0x80, 0xF0, 0x80, 0x80  // F
 };
 uint8_t pixels[CHIP_8_WIDTH][CHIP_8_HEIGHT] = {0};
+uint8_t key_down = 0;
 
 int stack_push(uint16_t in) {
     if (stack_top >= STACK_MAX) {
@@ -90,8 +91,7 @@ int decode(uint16_t op) {
                         case 0xE:
                             // 00EE
                             // return from a subroutine
-                            // TODO: implement
-                            return -1;
+                            pc = ram_ptr + stack_pop();
                             break;
                         default:
                             return -1;
@@ -101,9 +101,8 @@ int decode(uint16_t op) {
                 default:
                     // 0NNN
                     // execute machine language subroutine at address NNN
-                    // TODO: implement
+                    // not needed unless directly emulating COSMAC VIP, ETI-660, or DREAM 6800
                     return -1;
-                    // uint16_t address = op & 0x0FFF;
                     break;
             }
             break;
@@ -119,10 +118,9 @@ int decode(uint16_t op) {
         case 0x2:
             // 2NNN
             // execute subroutine startign at address NNN
-            // TODO: implement
-            return -1;
-            // should be about the same as 0NNN
-            // uint16_t address = op & 0x0FFF;
+            stack_push((uint16_t)(pc-ram_ptr));
+            uint16_t addr = op & 0x0FFF;
+            pc = ram_ptr + addr;
             break;
 
         case 0x3: {
@@ -307,15 +305,13 @@ int decode(uint16_t op) {
                 case 0x9:
                     // EX9E
                     // skip the following instruction if the key corresponding to the hex value curretly stored in VX is pressed
-                    // TODO implement
-                    return -1;
+                    if (key_down == ops[1]) pc += sizeof(uint16_t);
                     break;
 
                 case 0xA:
                     // EXA1
                     // skip the followig instruction if the key corresponding to the hex value currently stored in VX is not pressed
-                    // TODO implement
-                    return -1;
+                    if (key_down != ops[1]) pc += sizeof(uint16_t);
                     break;
 
                 default:
@@ -461,7 +457,6 @@ uint16_t fetch() {
 // returns 1 if screen needs to be updated
 int chip_cycle() {
     uint16_t op = fetch();
-    printf("opcode: %x\n", op);
 
     int decode_status = decode(op);
     if(decode_status < 0) {
