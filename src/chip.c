@@ -356,7 +356,7 @@ int decode(uint16_t op) {
                             } else if (key_wait && key_wait_filled) {
                                 // key was pressed, register was filled
                                 key_wait = 0;
-                                key_wait_filled = 0;
+                                key_wait_filled = 1;
                                 key_register = NULL;
                             } else {
                                 // initialize key wait

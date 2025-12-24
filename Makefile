@@ -14,6 +14,10 @@ TARGET := $(BUILD_DIR)/woodchip
 # Default target
 all: $(TARGET)
 
+debug: clean
+debug: CFLAGS += -g
+debug: $(TARGET)
+
 # Link
 $(TARGET): $(SRCS) | $(BUILD_DIR)
 	$(CC) $(CFLAGS) $(LFLAGS) $^ -o $@
