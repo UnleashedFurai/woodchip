@@ -201,7 +201,8 @@ int decode(uint16_t op) {
                     // store the value of VY shifted right one bit in VX
                     // set VF to the least significant bit prior to the shift
                     // VY is unchanged
-                    // TODO: implemet
+                    registers[0xF] = registers[ops[2]] & 1;
+                    registers[ops[1]] = registers[ops[2]] >> 1;
                     break;
 
                 case 0x7:
