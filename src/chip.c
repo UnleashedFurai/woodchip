@@ -220,16 +220,18 @@ int decode(uint16_t op) {
                     break;
                 }
 
-                case 0x6:
+                case 0x6: {
                     // 8XY6
                     // store the value of VY shifted right one bit in VX
                     // set VF to the least significant bit prior to the shift
                     // VY is unchanged
-                    registers[0xF] = registers[ops[2]] & 0x1;
+                    uint8_t lsb  = registers[ops[2]] & 0x1;
                     registers[ops[1]] = registers[ops[2]] >> 1;
+                    registers[0xF] =  lsb;
                     break;
+                }
 
-                case 0x7: {
+                case 0x7:
                     // 8XY7
                     // set VX to the value of VY minux VX
                     // set VF to 00 if a borrow occurs
@@ -239,17 +241,18 @@ int decode(uint16_t op) {
                     if (registers[ops[1]] < registers[ops[2]]) registers[0xF] = 1;
                     else registers[0xF] = 0;
                     break;
-                }
 
-                case 0xE:
+                case 0xE: {
                     // 8XYE
                     // store the value of VY shifted left one bit in VX
                     // set VF to the most significant bit prior to the shift
                     // VY is unchanged
                     // 0b10000000 -> 0x80
-                    registers[0xF] = registers[ops[2]] & 0x80;
+                    uint8_t msb = registers[ops[2]] & 0x80;
                     registers[ops[1]] = registers[ops[2]] << 1;
+                    registers[0xF] = msb;
                     break;
+                }
 
                 default:
                     return -1;
