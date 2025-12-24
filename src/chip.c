@@ -133,7 +133,7 @@ int decode(uint16_t op) {
             // 3XNN
             // skip the following instruction if the value of VX equals NN
             uint8_t nn = op & 0x00FF;
-            if (registers[ops[1]] == nn) pc+=sizeof(uint16_t);
+            if (registers[ops[1]] == nn) pc+=2;
             break;
         }
 
@@ -141,14 +141,14 @@ int decode(uint16_t op) {
             // 4XNN
             // skip the following instruction if the value of VX is nnont equal to NN
             uint8_t nn = op & 0x00FF;
-            if (registers[ops[1]] != nn) pc += sizeof(uint16_t);
+            if (registers[ops[1]] != nn) pc += 2;
             break;
         }
 
         case 0x5: {
             // 5XY0
             // skip the following instructionn if the value of VX is equal to the value of VY
-            if (registers[ops[1]] == registers[ops[2]]) pc += sizeof(uint16_t);
+            if (registers[ops[1]] == registers[ops[2]]) pc += 2;
             break;
         }
 
@@ -254,7 +254,7 @@ int decode(uint16_t op) {
                 case 0x0:
                     // 9XY0
                     // skip the folowing instruction if the value of VX is not equal to the value of VY
-                    if (registers[ops[1]] != registers[ops[2]]) pc+=sizeof(uint16_t);
+                    if (registers[ops[1]] != registers[ops[2]]) pc+=2;
                     break;
 
                 default:
@@ -317,13 +317,13 @@ int decode(uint16_t op) {
                 case 0x9:
                     // EX9E
                     // skip the following instruction if the key corresponding to the hex value curretly stored in VX is pressed
-                    if (keys[registers[ops[1]]]) pc += sizeof(uint16_t);
+                    if (keys[registers[ops[1]]]) pc += 2;
                     break;
 
                 case 0xA:
                     // EXA1
                     // skip the followig instruction if the key corresponding to the hex value currently stored in VX is not pressed
-                    if (!keys[registers[ops[1]]]) pc += sizeof(uint16_t);
+                    if (!keys[registers[ops[1]]]) pc += 2;
                     break;
 
                 default:
@@ -352,7 +352,7 @@ int decode(uint16_t op) {
                                  * key_wait_filled = 0;
                                  * key_register = &registers[ops[1]];
                                  */
-                                pc -= sizeof(uint16_t);
+                                pc -= 2;
                             } else if (key_wait && key_wait_filled) {
                                 // key was pressed, register was filled
                                 key_wait = 0;
@@ -363,7 +363,7 @@ int decode(uint16_t op) {
                                 key_wait = 1;
                                 key_wait_filled = 0;
                                 key_register = &registers[ops[1]];
-                                pc -= sizeof(uint16_t);
+                                pc -= 2;
                             }
                             break;
 
@@ -486,7 +486,7 @@ int decode(uint16_t op) {
 uint16_t fetch() {
     uint16_t op = (pc[0] << 8) | pc[1];
 
-    pc += sizeof(uint16_t);
+    pc += 2;
     return op;
 }
 
