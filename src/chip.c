@@ -175,7 +175,11 @@ int decode(uint16_t op) {
                     // add the value of VY to VX
                     // set VF to 01 if a carry occurs
                     // set VF to 00 if no carry occurs
-                    // TODO: implemet
+                    uint8_t tmp_vx = registers[ops[1]];
+                    registers[ops[1]] += registers[ops[2]];
+
+                    if (registers[ops[1]] <= tmp_vx) registers[0xF] = 1;
+                    else registers[0xF] = 0;
                     break;
 
                 case 0x5:
