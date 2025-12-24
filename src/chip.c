@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <string.h>
+#include <time.h>
 
 #define STACK_MAX 16
 #define REGISTERS 16
@@ -220,7 +221,7 @@ int decode(uint16_t op) {
                     // store the value of VY shifted right one bit in VX
                     // set VF to the least significant bit prior to the shift
                     // VY is unchanged
-                    registers[0xF] = registers[ops[2]] & 1;
+                    registers[0xF] = registers[ops[2]] & 0x1;
                     registers[ops[1]] = registers[ops[2]] >> 1;
                     break;
 
@@ -280,7 +281,7 @@ int decode(uint16_t op) {
             // CXNN
             // set VX to a random number with a mask of NN
             uint8_t nn = op & 0x00FF;
-            registers[ops[1]] = nn & (uint8_t)(rand()%256);
+            registers[ops[1]] = nn & (rand()%256);
             break;
         }
 
