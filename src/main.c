@@ -108,8 +108,6 @@ void program_loop() {
                     break;
 
                 case SDL_EVENT_KEY_DOWN: {
-                    if (sdl_event.key.scancode == SDL_SCANCODE_ESCAPE)
-                            running = -1;
                     int key = scan_to_chip(sdl_event.key.scancode);
                     if (key != -1) {
                         keys[key] = 1;
