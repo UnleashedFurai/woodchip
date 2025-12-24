@@ -2,7 +2,6 @@
 #include "usage.h"
 #include "macros.h"
 
-#include <SDL3/SDL_scancode.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <SDL3/SDL.h>
@@ -143,7 +142,7 @@ void program_loop() {
                     break;
             }
         }
-
+        
         if(chip_cycle()==1) draw_screen();
 
         // cap at 60FPS

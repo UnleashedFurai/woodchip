@@ -8,16 +8,16 @@
 #define STACK_MAX 16
 #define REGISTERS 16
 
-const size_t RAM = 4096;        /* number of bytes in 4kb. size of RAM */
-uint8_t *ramPtr;                /* pointer to our emulated RAM */
-uint8_t *pc;                    /* our program counter */
-uint16_t idx = 0;               /* the index register */
-uint16_t stack[STACK_MAX];      /* array for stack */
-uint8_t stack_top = -1;         /* index of current position in stack */
-uint8_t registers[REGISTERS];   /* array holding our registers */
-uint8_t delay_timer = 0;        /* delay timer; decrements at 60hz. */
-uint8_t sound_timer = 0;        /* sound timer */
-uint8_t font[80] = {            /* standard chip-8 font */
+const size_t RAM = 4096;            /* number of bytes in 4kb. size of RAM */
+uint8_t *ram_ptr;                   /* pointer to our emulated RAM */
+uint8_t *pc;                        /* our program counter */
+uint16_t idx = 0;                   /* the index register */
+uint16_t stack[STACK_MAX];          /* array for stack */
+uint8_t stack_top = 0;              /* index of current position in stack */
+uint8_t registers[REGISTERS] = {0}; /* array holding our registers */
+uint8_t delay_timer = 0;            /* delay timer; decrements at 60hz. */
+uint8_t sound_timer = 0;            /* sound timer */
+uint8_t font[80] = {                /* standard chip-8 font */
     0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
     0x20, 0x60, 0x20, 0x20, 0x70, // 1
     0xF0, 0x10, 0xF0, 0x80, 0xF0, // 2
@@ -63,6 +63,12 @@ size_t filesize(FILE* f) {
     return s;
 }
 
+int chip_clean() {
+    free(ram_ptr);
+
+    return 0;
+}
+
 int decode(uint16_t op) {
     // get each individual op
     uint8_t ops[4];
@@ -85,15 +91,18 @@ int decode(uint16_t op) {
                             // 00EE
                             // return from a subroutine
                             // TODO: implement
+                            return -1;
                             break;
                         default:
                             return -1;
                     }
+                    break;
 
                 default:
                     // 0NNN
                     // execute machine language subroutine at address NNN
                     // TODO: implement
+                    return -1;
                     // uint16_t address = op & 0x0FFF;
                     break;
             }
@@ -102,8 +111,8 @@ int decode(uint16_t op) {
         case 0x1: {
             // 1NNN
             // jump to address NNN
-            uint8_t offset = op & 0x0FFF;
-            pc = ramPtr + offset;
+            uint16_t offset = op & 0x0FFF;
+            pc = ram_ptr + offset;
             break;
         }
             
@@ -111,26 +120,31 @@ int decode(uint16_t op) {
             // 2NNN
             // execute subroutine startign at address NNN
             // TODO: implement
+            return -1;
             // should be about the same as 0NNN
             // uint16_t address = op & 0x0FFF;
             break;
 
-        case 0x3:
+        case 0x3: {
             // 3XNN
             // skip the following instruction if the value of VX equals NN
-            // TODO: implemet
+            uint8_t nn = op & 0x00FF;
+            if (registers[ops[1]] == nn) pc+=sizeof(uint16_t);
             break;
+        }
 
         case 0x4:
             // 4XNN
             // skip the following instruction if the value of VX is nnont equal to NN
             // TODO: implemet
+            return -1;
             break;
 
         case 0x5:
             // 5XY0
             // skip the following instructionn if the value of VX is equal to the value of VY
             // TODO: implemet
+            return -1;
             break;
 
         case 0x6: {
@@ -235,6 +249,7 @@ int decode(uint16_t op) {
                     // 9XY0
                     // skip the folowing instruction if the value of VX is not equal to the value of VY
                     // TODO: implement
+                    return -1;
                 default:
                     // illegal instruction
                     return -1;
@@ -251,12 +266,14 @@ int decode(uint16_t op) {
             // BNNN
             // jump to address NNN + V0
             // TODO: implement
+            return -1;
             break;
 
         case 0xC:
             // CXNN
             // set VX to a random number with a mask of NN
             // TODO: implement
+            return -1;
             break;
 
         case 0xD:
@@ -269,7 +286,7 @@ int decode(uint16_t op) {
             registers[0xF] = 0;
 
             for(int i=0; i<ops[3]; i++) {
-                uint8_t sprite = ramPtr[idx+i];
+                uint8_t sprite = ram_ptr[idx+i];
                 for(int j=0; j<8; j++) {
                     uint8_t pixel = (sprite >> (7-j)) & 0x1;
                     if (pixel == 0) continue;
@@ -291,12 +308,14 @@ int decode(uint16_t op) {
                     // EX9E
                     // skip the following instruction if the key corresponding to the hex value curretly stored in VX is pressed
                     // TODO implement
+                    return -1;
                     break;
 
                 case 0xA:
                     // EXA1
                     // skip the followig instruction if the key corresponding to the hex value currently stored in VX is not pressed
                     // TODO implement
+                    return -1;
                     break;
 
                 default:
@@ -313,12 +332,14 @@ int decode(uint16_t op) {
                             // FX07
                             // store the current value of the delay timer in VX
                             // TODO implement
+                            return -1;
                             break;
 
                         case 0xA:
                             // FX0A
                             // wait for a keypress and store the result in VX
                             // TODO implement
+                            return -1;
                             break;
 
                         default:
@@ -333,12 +354,14 @@ int decode(uint16_t op) {
                             // FX15
                             // set the delay timer to the value of VX
                             // TODO implement
+                            return -1;
                             break;
                         
                         case 0x8:
                             // FX18
                             // set the sound timer t the value of register VX
                             // TODO implement
+                            return -1;
                             break;
 
                         case 0xE:
@@ -361,6 +384,7 @@ int decode(uint16_t op) {
                             // FX29
                             // set index to the memory address of the sprite data corresponding to the hexademical digit stored in VX
                             // TODO implement
+                            return -1;
                             break;
 
                         default:
@@ -375,6 +399,7 @@ int decode(uint16_t op) {
                             // FX33
                             // store the binary-coded decimal equivalent of the value stored in VX at addresses idnex, idex+1, index+2
                             // TODO implement
+                            return -1;
                             break;
 
                         default:
@@ -390,6 +415,7 @@ int decode(uint16_t op) {
                             // store the values of V0-VX inclusive in memory starting at index
                             // index is set to idnex + X + 1 after operation
                             // TODO implemetn
+                            return -1;
                             break;
 
                         default:
@@ -428,7 +454,7 @@ int decode(uint16_t op) {
 uint16_t fetch() {
     uint16_t op = (pc[0] << 8) | pc[1];
 
-    pc=pc+sizeof(uint16_t);
+    pc += sizeof(uint16_t);
     return op;
 }
 
@@ -437,10 +463,7 @@ uint16_t fetch() {
 // returns 1 if screen needs to be updated
 int chip_cycle() {
     uint16_t op = fetch();
-    if(!op) {
-        printf("ERROR: Failed to get instruction at: %p\n", pc);
-        return -1;
-    }
+    printf("opcode: %x\n", op);
 
     int decode_status = decode(op);
     if(decode_status < 0) {
@@ -459,16 +482,16 @@ int chip_cycle() {
 }
 
 int chip_init(char* filename) {
-    // zero the registers
-    for(int i=0; i<REGISTERS; i++) registers[i] = 0;
-
-    ramPtr = malloc(RAM);
-    if (!ramPtr) {
+    ram_ptr = malloc(RAM);
+    if (!ram_ptr) {
         printf("ERROR: Failed to allocate RAM.\n");
         return -1;
     }
 
-    pc = ramPtr + 0x200;
+    pc = ram_ptr + 0x200;
+
+    // load the font
+    memcpy(ram_ptr + 0x50, font, sizeof(font));
 
     // load the rom
     FILE *f = fopen(filename, "rb");
@@ -486,12 +509,6 @@ int chip_init(char* filename) {
 
     // unload file
     fclose(f);
-
-    return 0;
-}
-
-int chip_clean() {
-    free(ramPtr);
 
     return 0;
 }
