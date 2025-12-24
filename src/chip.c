@@ -37,6 +37,9 @@ uint8_t font[80] = {                /* standard chip-8 font */
 };
 uint8_t pixels[CHIP_8_WIDTH][CHIP_8_HEIGHT] = {0};
 int keys[16] = {0};
+int key_wait = 0;
+int key_wait_filled = 1;
+uint8_t *key_register;
 
 int stack_push(uint16_t in) {
     if (stack_top >= STACK_MAX) {
@@ -247,8 +250,9 @@ int decode(uint16_t op) {
                 case 0x0:
                     // 9XY0
                     // skip the folowing instruction if the value of VX is not equal to the value of VY
-                    // TODO: implement
-                    return -1;
+                    if (registers[ops[1]] != registers[ops[2]]) pc+=sizeof(uint16_t);
+                    break;
+
                 default:
                     // illegal instruction
                     return -1;
@@ -335,14 +339,26 @@ int decode(uint16_t op) {
                         case 0xA:
                             // FX0A
                             // wait for a keypress and store the result in VX
-                            int found = 0;
-                            for (int i=0; i<16; i++) {
-                                if(keys[i]) {
-                                    registers[ops[1]] = i; 
-                                    found = 1;
-                                }
+                            if (key_wait && !key_wait_filled) {
+                                /*
+                                 * should already have this state:
+                                 * key_wait = 1;
+                                 * key_wait_filled = 0;
+                                 * key_register = &registers[ops[1]];
+                                 */
+                                pc -= sizeof(uint16_t);
+                            } else if (key_wait && key_wait_filled) {
+                                // key was pressed, register was filled
+                                key_wait = 0;
+                                key_wait_filled = 0;
+                                key_register = NULL;
+                            } else {
+                                // initialize key wait
+                                key_wait = 1;
+                                key_wait_filled = 0;
+                                key_register = &registers[ops[1]];
+                                pc -= sizeof(uint16_t);
                             }
-                            if (!found) pc -= sizeof(uint16_t);
                             break;
 
                         default:
@@ -465,7 +481,7 @@ uint16_t fetch() {
 int chip_cycle() {
     uint16_t op = fetch();
 
-    // printf("opcode: %.4x\n", op);
+    printf("opcode: %.4x\n", op);
 
     int decode_status = decode(op);
     if(decode_status < 0) {

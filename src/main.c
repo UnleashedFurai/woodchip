@@ -111,8 +111,13 @@ void program_loop() {
                     if (sdl_event.key.scancode == SDL_SCANCODE_ESCAPE)
                             running = -1;
                     int key = scan_to_chip(sdl_event.key.scancode);
-                    if (key != -1)
+                    if (key != -1) {
                         keys[key] = 1;
+                        if (!key_wait_filled) {
+                            *key_register = (uint8_t) key;
+                            key_wait_filled = 1;
+                        }
+                    }
                     break;
                 }
 
@@ -128,7 +133,10 @@ void program_loop() {
             }
         }
         
-        if(chip_cycle()==1) draw_screen();
+        int draw = 0;
+        for (int i=0; i<CHIP_8_CYCLES_PER_FRAME; i++)
+            if (chip_cycle()) draw = 1;
+        if (draw) draw_screen();
 
         // cap at 60FPS
         uint64_t render_time = SDL_GetTicksNS() - render_start;
