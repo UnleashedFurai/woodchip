@@ -36,7 +36,7 @@ uint8_t font[80] = {                /* standard chip-8 font */
     0xF0, 0x80, 0xF0, 0x80, 0x80  // F
 };
 uint8_t pixels[CHIP_8_WIDTH][CHIP_8_HEIGHT] = {0};
-uint8_t key_down = 0;
+uint8_t key_down = 255;
 
 int stack_push(uint16_t in) {
     if (stack_top >= STACK_MAX) {
@@ -333,8 +333,8 @@ int decode(uint16_t op) {
                         case 0xA:
                             // FX0A
                             // wait for a keypress and store the result in VX
-                            // TODO implement
-                            return -1;
+                            if (key_down == 255) pc -= sizeof(uint16_t);
+                            else registers[ops[1]] = key_down;
                             break;
 
                         default:
