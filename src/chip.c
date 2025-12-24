@@ -310,16 +310,16 @@ int decode(uint16_t op) {
                 int y = (vy+i) % CHIP_8_HEIGHT;
                 if (y > CHIP_8_HEIGHT) break;
                 for(int j=0; j<8; j++) {
+                    int x = (vx+j) % CHIP_8_WIDTH;
+
                     uint8_t pixel = (sprite >> (7-j)) & 0x1;
                     if (pixel == 0) continue;
-
-                    int x = (vx+j) % CHIP_8_WIDTH;
 
                     if (x > CHIP_8_WIDTH) break;
 
                     if (pixels[x][y] == 1)
                         registers[0xF] = 1;
-                    pixels[x][y] ^= 1;
+                    pixels[x][y] ^= pixel;
                 }
             }
             // break;
