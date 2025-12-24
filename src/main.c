@@ -82,18 +82,19 @@ int scan_to_chip(SDL_Scancode s) {
 }
 
 void draw_screen() {
-   for (int i=0; i<CHIP_8_WIDTH; i++) {
-       for (int j=0; j<CHIP_8_HEIGHT; j++) {
-           if (pixels[i][j] > 0) {
-               SDL_SetRenderDrawColor(sdl_renderer, WHITE);
-           } else {
-               SDL_SetRenderDrawColor(sdl_renderer, BLACK);
-           }
-           SDL_FRect f = {i * WINDOW_SIZE_MODIFIER, j * WINDOW_SIZE_MODIFIER, WINDOW_SIZE_MODIFIER, WINDOW_SIZE_MODIFIER};
-           SDL_RenderFillRect(sdl_renderer, &f);
-       }
-   }
-   SDL_RenderPresent(sdl_renderer);
+    SDL_RenderClear(sdl_renderer);
+    for (int i=0; i<CHIP_8_WIDTH; i++) {
+        for (int j=0; j<CHIP_8_HEIGHT; j++) {
+            if (pixels[i][j] == 1) {
+                SDL_SetRenderDrawColor(sdl_renderer, WHITE);
+            } else {
+                SDL_SetRenderDrawColor(sdl_renderer, BLACK);
+            }
+            SDL_FRect f = {i * WINDOW_SIZE_MODIFIER, j * WINDOW_SIZE_MODIFIER, WINDOW_SIZE_MODIFIER, WINDOW_SIZE_MODIFIER};
+            SDL_RenderFillRect(sdl_renderer, &f);
+        }
+    }
+    SDL_RenderPresent(sdl_renderer);
 }
 
 void program_loop() {

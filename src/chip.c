@@ -202,19 +202,23 @@ int decode(uint16_t op) {
                     uint8_t tmp_vx = registers[ops[1]];
                     registers[ops[1]] += registers[ops[2]];
 
-                    if (registers[ops[1]] <= tmp_vx) registers[0xF] = 1;
+                    if (registers[ops[1]] < tmp_vx) registers[0xF] = 1;
                     else registers[0xF] = 0;
                     break; 
                 }
 
-                case 0x5:
+                case 0x5: {
                     // 8XY5
                     // subtract the value of VY from VX
                     // set VF to 00 if a borrow occurs
                     // set VF to 01 if no borrow occurs
-                    registers[0xF] = (registers[ops[1]] >= registers[ops[2]]) ? 1 : 0;
+                    uint8_t tmp_vx = registers[ops[1]];
                     registers[ops[1]] -= registers[ops[2]];
+
+                    if (registers[ops[1]] < tmp_vx) registers[0xF] = 1;
+                    else registers[0xf] = 0;
                     break;
+                }
 
                 case 0x6:
                     // 8XY6
@@ -225,14 +229,18 @@ int decode(uint16_t op) {
                     registers[ops[1]] = registers[ops[2]] >> 1;
                     break;
 
-                case 0x7:
+                case 0x7: {
                     // 8XY7
                     // set VX to the value of VY minux VX
                     // set VF to 00 if a borrow occurs
                     // set VF to 01 if a no borrow occurs
-                    registers[0xF] = (registers[ops[2]] >= registers[ops[1]]) ? 1 : 0;
+                    uint8_t tmp_vy = registers[ops[1]];
                     registers[ops[1]] =  registers[ops[2]] - registers[ops[1]];
+
+                    if (registers[ops[1]] > tmp_vy) registers[0xF] = 1;
+                    else registers[0xF] = 0;
                     break;
+                }
 
                 case 0xE:
                     // 8XYE
@@ -296,12 +304,15 @@ int decode(uint16_t op) {
 
             for(int i=0; i<ops[3]; i++) {
                 uint8_t sprite = *(ram_ptr + idx + i);
+                int y = (vy+i) % CHIP_8_HEIGHT;
+                if (y > CHIP_8_HEIGHT) break;
                 for(int j=0; j<8; j++) {
                     uint8_t pixel = (sprite >> (7-j)) & 0x1;
                     if (pixel == 0) continue;
 
                     int x = (vx+j) % CHIP_8_WIDTH;
-                    int y = (vy+i) % CHIP_8_HEIGHT;
+
+                    if (x > CHIP_8_WIDTH) break;
 
                     if (pixels[x][y] == 1)
                         registers[0xF] = 1;
@@ -510,6 +521,11 @@ int chip_cycle() {
     if (sound_timer > 0) {
         // TODO: play sound
     }
+
+    printf("pc: %.4lx\t\t registers:", (pc - ram_ptr)); 
+    for (int i=0; i<16; i++)
+        printf("%.2x, ", registers[i]);
+    printf("\n\n");
 
     return (decode_status == 1) ? 1 : 0;
 }
