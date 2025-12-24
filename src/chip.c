@@ -139,12 +139,12 @@ int decode(uint16_t op) {
             break;
         }
 
-        case 0x5:
+        case 0x5: {
             // 5XY0
             // skip the following instructionn if the value of VX is equal to the value of VY
-            // TODO: implemet
-            return -1;
+            if (registers[ops[1]] == registers[ops[2]]) pc += sizeof(uint16_t);
             break;
+        }
 
         case 0x6: {
             // 6XNN
