@@ -249,6 +249,7 @@ int decode(uint16_t op) {
                     // VY is unchanged
                     // 0b10000000 -> 0x80
                     uint8_t msb = registers[ops[2]] & 0x80;
+                    msb >>= 7;
                     registers[ops[1]] = registers[ops[2]] << 1;
                     registers[0xF] = msb;
                     break;
@@ -523,11 +524,6 @@ int chip_cycle() {
     if (sound_timer > 0) {
         // TODO: play sound
     }
-
-    printf("pc: %.4lx\t\t registers:", (pc - ram_ptr)); 
-    for (int i=0; i<16; i++)
-        printf("%.2x, ", registers[i]);
-    printf("\n\n");
 
     return (decode_status == 1) ? 1 : 0;
 }
