@@ -407,7 +407,7 @@ int decode(uint16_t op) {
                         case 0x9:
                             // FX29
                             // set index to the memory address of the sprite data corresponding to the hexademical digit stored in VX
-                            idx = (font_ptr + ops[1]*5) - ram_ptr;
+                            idx = (font_ptr + registers[ops[1]]*5) - ram_ptr;
                             break;
 
                         default:
