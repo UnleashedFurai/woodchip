@@ -458,7 +458,7 @@ int decode(uint16_t op) {
                             // fill registers V0-VX inclusive with the values stored in memory starting at index
                             // index is set to index + x + 1 after operation
                             for (int i=0; i<=ops[1]; i++) {
-                                registers[ops[1]] = *(ram_ptr + idx);
+                                registers[i] = *(ram_ptr + idx);
                                 idx++;
                             }
                             break;
