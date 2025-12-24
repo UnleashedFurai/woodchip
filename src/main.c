@@ -47,6 +47,40 @@ int destroy_sdl() {
     return 0;
 }
 
+int scan_to_chip(SDL_Scancode s) {
+    switch (s) {
+      /*
+       * the key layout is as follows
+       *     qwerty    ->      chip-8
+       *   1  2  3  4        1  2  3  C
+       *   Q  W  E  R        4  5  6  D
+       *   A  S  D  F        7  8  9  E
+       *   Z  X  C  V        A  0  B  F
+       */
+        case SDL_SCANCODE_1: return 0x1;
+        case SDL_SCANCODE_2: return 0x2;
+        case SDL_SCANCODE_3: return 0x3;
+        case SDL_SCANCODE_4: return 0xC;
+
+        case SDL_SCANCODE_Q: return 0x4;
+        case SDL_SCANCODE_W: return 0x5;
+        case SDL_SCANCODE_E: return 0x6;
+        case SDL_SCANCODE_R: return 0xD;
+
+        case SDL_SCANCODE_A: return 0x7;
+        case SDL_SCANCODE_S: return 0x8;
+        case SDL_SCANCODE_D: return 0x9;
+        case SDL_SCANCODE_F: return 0xE;
+
+        case SDL_SCANCODE_Z: return 0xA;
+        case SDL_SCANCODE_X: return 0x0;
+        case SDL_SCANCODE_C: return 0xB;
+        case SDL_SCANCODE_V: return 0xF;
+
+        default: return -1;
+    }
+}
+
 void draw_screen() {
    for (int i=0; i<CHIP_8_WIDTH; i++) {
        for (int j=0; j<CHIP_8_HEIGHT; j++) {
@@ -72,72 +106,21 @@ void program_loop() {
                 case SDL_EVENT_QUIT:
                     running = -1;
                     break;
-                case SDL_EVENT_KEY_DOWN:
-                    switch (sdl_event.key.scancode) {
-                        case SDL_SCANCODE_ESCAPE:
+
+                case SDL_EVENT_KEY_DOWN: {
+                    if (sdl_event.key.scancode == SDL_SCANCODE_ESCAPE)
                             running = -1;
-                            break;
+                    int key = scan_to_chip(sdl_event.key.scancode);
+                    if (key != -1)
+                        keys[key] = 1;
+                }
 
-                        /*
-                         * the key layout is as follows
-                         *     qwerty            chip-8
-                         *   1  2  3  4        1  2  3  C
-                         *   Q  W  E  R        4  5  6  D
-                         *   A  S  D  F        7  8  9  E
-                         *   Z  X  C  V        A  0  B  F
-                         */
-                        // TODO: send input to chip.c
-                        case SDL_SCANCODE_1:
-                            break;
-
-                        case SDL_SCANCODE_2:
-                            break;
-
-                        case SDL_SCANCODE_3:
-                            break;
-
-                        case SDL_SCANCODE_4:
-                            break;
-
-                        case SDL_SCANCODE_Q:
-                            break;
-
-                        case SDL_SCANCODE_W:
-                            break;
-
-                        case SDL_SCANCODE_E:
-                            break;
-
-                        case SDL_SCANCODE_R:
-                            break;
-
-                        case SDL_SCANCODE_A:
-                            break;
-
-                        case SDL_SCANCODE_S:
-                            break;
-
-                        case SDL_SCANCODE_D:
-                            break;
-
-                        case SDL_SCANCODE_F:
-                            break;
-
-                        case SDL_SCANCODE_Z:
-                            break;
-
-                        case SDL_SCANCODE_X:
-                            break;
-
-                        case SDL_SCANCODE_C:
-                            break;
-
-                        case SDL_SCANCODE_V:
-                            break;
-
-                        default:
-                            break;
-                    }
+                case SDL_EVENT_KEY_UP: {
+                    int key = scan_to_chip(sdl_event.key.scancode);
+                    if (key != -1)
+                        keys[key] = 0;
+                }
+                    
                 default:
                     break;
             }

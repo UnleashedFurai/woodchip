@@ -36,7 +36,7 @@ uint8_t font[80] = {                /* standard chip-8 font */
     0xF0, 0x80, 0xF0, 0x80, 0x80  // F
 };
 uint8_t pixels[CHIP_8_WIDTH][CHIP_8_HEIGHT] = {0};
-uint8_t key_down = 255;
+int keys[0xF] = {0};
 
 int stack_push(uint16_t in) {
     if (stack_top >= STACK_MAX) {
@@ -264,15 +264,16 @@ int decode(uint16_t op) {
             // BNNN
             // jump to address NNN + V0
             uint16_t offset = op & 0x0FFF;
-            pc = ram_ptr + (registers[0] + addr);
+            pc = ram_ptr + (registers[0] + offset);
             break;
 
-        case 0xC:
+        case 0xC: {
             // CXNN
             // set VX to a random number with a mask of NN
-            // TODO: implement
-            return -1;
+            uint8_t nn = op & 0x00FF;
+            registers[ops[1]] = nn & rand();
             break;
+        }
 
         case 0xD:
             // DXYN
@@ -305,13 +306,13 @@ int decode(uint16_t op) {
                 case 0x9:
                     // EX9E
                     // skip the following instruction if the key corresponding to the hex value curretly stored in VX is pressed
-                    if (key_down == ops[1]) pc += sizeof(uint16_t);
+                    if (keys[ops[1]]) pc += sizeof(uint16_t);
                     break;
 
                 case 0xA:
                     // EXA1
                     // skip the followig instruction if the key corresponding to the hex value currently stored in VX is not pressed
-                    if (key_down != ops[1]) pc += sizeof(uint16_t);
+                    if (!keys[ops[1]]) pc += sizeof(uint16_t);
                     break;
 
                 default:
@@ -333,8 +334,8 @@ int decode(uint16_t op) {
                         case 0xA:
                             // FX0A
                             // wait for a keypress and store the result in VX
-                            if (key_down == 255) pc -= sizeof(uint16_t);
-                            else registers[ops[1]] = key_down;
+                            if (!keys[ops[1]]) pc -= sizeof(uint16_t);
+                            registers[ops[1]] = keys[ops[1]];
                             break;
 
                         default:
@@ -456,6 +457,8 @@ uint16_t fetch() {
 // returns 1 if screen needs to be updated
 int chip_cycle() {
     uint16_t op = fetch();
+
+    printf("opcode: %.4x\n", op);
 
     int decode_status = decode(op);
     if(decode_status < 0) {
