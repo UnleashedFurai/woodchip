@@ -193,10 +193,9 @@ int decode(uint16_t op) {
                     // subtract the value of VY from VX
                     // set VF to 00 if a borrow occurs
                     // set VF to 01 if no borrow occurs
-                    uint8_t tmp_vx = registers[ops[1]];
-                    registers[ops[1]] -= registers[ops[2]];
+                    uint8_t difference = registers[ops[1]] - registers[ops[2]];
 
-                    if (registers[ops[1]] >= tmp_vx) registers[0xF] = 1;
+                    if (registers[ops[1]] <= difference) registers[0xF] = 1;
                     else registers[0xF] = 0;
                     break;
                 }
@@ -215,7 +214,11 @@ int decode(uint16_t op) {
                     // set VX to the value of VY minux VX
                     // set VF to 00 if a borrow occurs
                     // set VF to 01 if a no borrow occurs
-                    // TODO: implement
+                    uint8_t tmp_vx = registers[ops[1]];
+                    registers[ops[1]] -= registers[ops[2]];
+
+                    if (registers[ops[1]] >= tmp_vx) registers[0xF] = 1;
+                    else registers[0xF] = 0;
                     break;
 
                 case 0xE:
