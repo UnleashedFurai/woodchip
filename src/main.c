@@ -49,14 +49,14 @@ int destroy_sdl() {
 
 int scan_to_chip(SDL_Scancode s) {
     switch (s) {
-      /*
-       * the key layout is as follows
-       *     qwerty    ->      chip-8
-       *   1  2  3  4        1  2  3  C
-       *   Q  W  E  R        4  5  6  D
-       *   A  S  D  F        7  8  9  E
-       *   Z  X  C  V        A  0  B  F
-       */
+        /*
+         * the key layout is as follows
+         *     qwerty    ->      chip-8
+         *   1  2  3  4        1  2  3  C
+         *   Q  W  E  R        4  5  6  D
+         *   A  S  D  F        7  8  9  E
+         *   Z  X  C  V        A  0  B  F
+         */
         case SDL_SCANCODE_1: return 0x1;
         case SDL_SCANCODE_2: return 0x2;
         case SDL_SCANCODE_3: return 0x3;
@@ -113,12 +113,14 @@ void program_loop() {
                     int key = scan_to_chip(sdl_event.key.scancode);
                     if (key != -1)
                         keys[key] = 1;
+                    break;
                 }
 
                 case SDL_EVENT_KEY_UP: {
                     int key = scan_to_chip(sdl_event.key.scancode);
                     if (key != -1)
                         keys[key] = 0;
+                    break;
                 }
                     
                 default:

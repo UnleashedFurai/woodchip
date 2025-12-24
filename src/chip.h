@@ -5,7 +5,7 @@
 #include <stdint.h>
 
 extern uint8_t pixels[CHIP_8_WIDTH][CHIP_8_HEIGHT];
-extern int keys[0xF];
+extern int keys[16];
 
 int chip_cycle();
 int chip_init(char* file);

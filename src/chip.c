@@ -36,7 +36,7 @@ uint8_t font[80] = {                /* standard chip-8 font */
     0xF0, 0x80, 0xF0, 0x80, 0x80  // F
 };
 uint8_t pixels[CHIP_8_WIDTH][CHIP_8_HEIGHT] = {0};
-int keys[0xF] = {0};
+int keys[16] = {0};
 
 int stack_push(uint16_t in) {
     if (stack_top >= STACK_MAX) {
@@ -307,13 +307,13 @@ int decode(uint16_t op) {
                 case 0x9:
                     // EX9E
                     // skip the following instruction if the key corresponding to the hex value curretly stored in VX is pressed
-                    if (keys[ops[1]]) pc += sizeof(uint16_t);
+                    if (keys[registers[ops[1]]]) pc += sizeof(uint16_t);
                     break;
 
                 case 0xA:
                     // EXA1
                     // skip the followig instruction if the key corresponding to the hex value currently stored in VX is not pressed
-                    if (!keys[ops[1]]) pc += sizeof(uint16_t);
+                    if (!keys[registers[ops[1]]]) pc += sizeof(uint16_t);
                     break;
 
                 default:
@@ -335,8 +335,14 @@ int decode(uint16_t op) {
                         case 0xA:
                             // FX0A
                             // wait for a keypress and store the result in VX
-                            if (!keys[ops[1]]) pc -= sizeof(uint16_t);
-                            registers[ops[1]] = keys[ops[1]];
+                            int found = 0;
+                            for (int i=0; i<16; i++) {
+                                if(keys[i]) {
+                                    registers[ops[1]] = i; 
+                                    found = 1;
+                                }
+                            }
+                            if (!found) pc -= sizeof(uint16_t);
                             break;
 
                         default:
@@ -459,7 +465,7 @@ uint16_t fetch() {
 int chip_cycle() {
     uint16_t op = fetch();
 
-    printf("opcode: %.4x\n", op);
+    // printf("opcode: %.4x\n", op);
 
     int decode_status = decode(op);
     if(decode_status < 0) {
