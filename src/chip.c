@@ -354,8 +354,7 @@ int decode(uint16_t op) {
                         case 0x8:
                             // FX18
                             // set the sound timer t the value of register VX
-                            // TODO implement
-                            return -1;
+                            sound_timer = registers[ops[1]];
                             break;
 
                         case 0xE:
