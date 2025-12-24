@@ -226,7 +226,9 @@ int decode(uint16_t op) {
                     // store the value of VY shifted left one bit in VX
                     // set VF to the most significant bit prior to the shift
                     // VY is unchanged
-                    // TODO: implement
+                    // 0b10000000 -> 0x80
+                    registers[0xF] = registers[ops[2]] & 0x80;
+                    registers[ops[1]] = registers[ops[2]] << 1;
                     break;
 
                 default:
