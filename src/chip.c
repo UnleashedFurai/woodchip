@@ -14,7 +14,7 @@ uint8_t *pc;                        /* our program counter */
 uint8_t *font_ptr;                  /* points to font location in ram */
 uint16_t idx = 0;                   /* the index register */
 uint16_t stack[STACK_MAX];          /* array for stack */
-uint8_t stack_top = 0;              /* index of current position in stack */
+int stack_top = -1;                 /* index of current position in stack */
 uint8_t registers[REGISTERS] = {0}; /* array holding our registers */
 uint8_t delay_timer = 0;            /* delay timer; decrements at 60hz. */
 uint8_t sound_timer = 0;            /* sound timer */
@@ -119,13 +119,14 @@ int decode(uint16_t op) {
             break;
         }
             
-        case 0x2:
+        case 0x2: {
             // 2NNN
             // execute subroutine startign at address NNN
             stack_push((uint16_t)(pc-ram_ptr));
             uint16_t addr = op & 0x0FFF;
             pc = ram_ptr + addr;
             break;
+        }
 
         case 0x3: {
             // 3XNN
@@ -192,7 +193,7 @@ int decode(uint16_t op) {
                     registers[ops[1]] = registers[ops[1]] ^ registers[ops[2]];
                     break;
 
-                case 0x4:
+                case 0x4: {
                     // 8XY4
                     // add the value of VY to VX
                     // set VF to 01 if a carry occurs
@@ -203,6 +204,7 @@ int decode(uint16_t op) {
                     if (registers[ops[1]] <= tmp_vx) registers[0xF] = 1;
                     else registers[0xF] = 0;
                     break; 
+                }
 
                 case 0x5:
                     // 8XY5
@@ -266,12 +268,13 @@ int decode(uint16_t op) {
             idx = op & 0x0FFF;
             break;
             
-        case 0xB:
+        case 0xB: {
             // BNNN
             // jump to address NNN + V0
             uint16_t offset = op & 0x0FFF;
             pc = ram_ptr + (registers[0] + offset);
             break;
+        }
 
         case 0xC: {
             // CXNN
@@ -281,7 +284,7 @@ int decode(uint16_t op) {
             break;
         }
 
-        case 0xD:
+        case 0xD: {
             // DXYN
             // draw a sprite at position VX, VY with N bytes of sprite data starting at the address stored in index
             // set VF to 01 if any pixels are changed to unset, 00 otherwise
@@ -291,7 +294,7 @@ int decode(uint16_t op) {
             registers[0xF] = 0;
 
             for(int i=0; i<ops[3]; i++) {
-                uint8_t sprite = ram_ptr[idx+i];
+                uint8_t sprite = *(ram_ptr + idx + i);
                 for(int j=0; j<8; j++) {
                     uint8_t pixel = (sprite >> (7-j)) & 0x1;
                     if (pixel == 0) continue;
@@ -306,6 +309,7 @@ int decode(uint16_t op) {
             }
             // break;
             return 1;
+        }
 
         case 0xE:
             switch(ops[2]) {
@@ -382,13 +386,14 @@ int decode(uint16_t op) {
                             sound_timer = registers[ops[1]];
                             break;
 
-                        case 0xE:
+                        case 0xE: {
                             // FX1E
                             // add the value stred in VX to index
                             uint16_t idx_tmp = idx;
                             idx += registers[ops[1]];
                             if (idx_tmp > idx) registers[0xF] = 1;
                             break;
+                        }
 
                         default:
                             // illegal instruction
@@ -401,7 +406,7 @@ int decode(uint16_t op) {
                         case 0x9:
                             // FX29
                             // set index to the memory address of the sprite data corresponding to the hexademical digit stored in VX
-                            idx = ram_ptr - (font_ptr + ops[1]*(5*sizeof(uint8_t)));
+                            idx = (font_ptr + ops[1]*5) - ram_ptr;
                             break;
 
                         default:
@@ -412,12 +417,16 @@ int decode(uint16_t op) {
 
                 case 0x3:
                     switch(ops[3]) {
-                        case 0x3:
-                            // X33
+                        case 0x3: {
+                            // FX33
                             // store the binary-coded decimal equivalent of the value stored in VX at addresses idnex, idex+1, index+2
-                            // TODO implement
-                            return -1;
+                            int val = registers[ops[1]];
+                            for (int i=2; i>=0; i--) {
+                                *(ram_ptr + idx + i) = val % 10;
+                                val /= 10;
+                            }
                             break;
+                        }
 
                         default:
                             // illegal instruction
@@ -427,13 +436,14 @@ int decode(uint16_t op) {
 
                 case 0x5:
                     switch(ops[3]) {
-                        case 0x5:
+                        case 0x5: {
                             // FX55
                             // store the values of V0-VX inclusive in memory starting at index
                             // index is set to idnex + X + 1 after operation
-                            // TODO implemetn
-                            return -1;
+                            for (int i=0; i<=ops[1]; i++)
+                                *(ram_ptr + idx + i) = registers[i];
                             break;
+                        }
 
                         default:
                             // illegal instruction
@@ -447,6 +457,10 @@ int decode(uint16_t op) {
                             // FX65
                             // fill registers V0-VX inclusive with the values stored in memory starting at index
                             // index is set to index + x + 1 after operation
+                            for (int i=0; i<ops[1]; i++) {
+                                registers[ops[1]] = *(ram_ptr + idx);
+                                idx++;
+                            }
                             break;
 
                         default:
