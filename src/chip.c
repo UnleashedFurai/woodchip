@@ -99,11 +99,13 @@ int decode(uint16_t op) {
             }
             break;
 
-        case 0x1:
+        case 0x1: {
             // 1NNN
             // jump to address NNN
-            pc = ramPtr + (op & 0x0FFF);
+            uint8_t offset = op & 0x0FFF;
+            pc = ramPtr + offset;
             break;
+        }
             
         case 0x2:
             // 2NNN
@@ -131,18 +133,21 @@ int decode(uint16_t op) {
             // TODO: implemet
             break;
 
-        case 0x6:
+        case 0x6: {
             // 6XNN
             // store NN in VX
-            registers[ops[1]] = op & 0x00FF;
+            uint8_t nn = op & 0x00FF;
+            registers[ops[1]] = nn;
             break;
+        }
 
-        case 0x7:
+        case 0x7: {
             // 7XNN
             // add NN to VX
-            // TODO: implemet
-            registers[ops[1]] += op & 0x00FF;
+            uint8_t nn = op & 0x00FF;
+            registers[ops[1]] += nn;
             break;
+        }
 
         case 0x8:
             switch(ops[3]) {
