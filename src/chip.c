@@ -352,8 +352,7 @@ int decode(uint16_t op) {
                         case 0x5:
                             // FX15
                             // set the delay timer to the value of VX
-                            // TODO implement
-                            return -1;
+                            delay_timer = registers[ops[1]];
                             break;
                         
                         case 0x8:
