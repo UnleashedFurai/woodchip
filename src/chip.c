@@ -280,7 +280,7 @@ int decode(uint16_t op) {
             // CXNN
             // set VX to a random number with a mask of NN
             uint8_t nn = op & 0x00FF;
-            registers[ops[1]] = nn & rand();
+            registers[ops[1]] = nn & (uint8_t)(rand()%256);
             break;
         }
 
