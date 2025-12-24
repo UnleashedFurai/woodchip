@@ -211,7 +211,7 @@ int decode(uint16_t op) {
                     // subtract the value of VY from VX
                     // set VF to 00 if a borrow occurs
                     // set VF to 01 if no borrow occurs
-                    registers[0xF] = (registers[ops[1]] > registers[ops[2]]) ? 1 : 0;
+                    registers[0xF] = (registers[ops[1]] >= registers[ops[2]]) ? 1 : 0;
                     registers[ops[1]] -= registers[ops[2]];
                     break;
 
@@ -229,7 +229,7 @@ int decode(uint16_t op) {
                     // set VX to the value of VY minux VX
                     // set VF to 00 if a borrow occurs
                     // set VF to 01 if a no borrow occurs
-                    registers[0xF] = (registers[ops[2]] > registers[ops[1]]) ? 1 : 0;
+                    registers[0xF] = (registers[ops[2]] >= registers[ops[1]]) ? 1 : 0;
                     registers[ops[1]] =  registers[ops[2]] - registers[ops[1]];
                     break;
 
@@ -498,8 +498,6 @@ int decrement_timers() {
 // returns 1 if screen needs to be updated
 int chip_cycle() {
     uint16_t op = fetch();
-
-    printf("opcode: %.4x\n", op);
 
     int decode_status = decode(op);
     if(decode_status < 0) {
