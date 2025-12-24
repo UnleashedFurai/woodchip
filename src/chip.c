@@ -406,7 +406,7 @@ int decode(uint16_t op) {
                         case 0x9:
                             // FX29
                             // set index to the memory address of the sprite data corresponding to the hexademical digit stored in VX
-                            idx = (font_ptr + ops[1]*5) - ram_ptr;
+                            idx = (font_ptr + registers[ops[1]]*5) - ram_ptr;
                             break;
 
                         default:
@@ -457,7 +457,7 @@ int decode(uint16_t op) {
                             // FX65
                             // fill registers V0-VX inclusive with the values stored in memory starting at index
                             // index is set to index + x + 1 after operation
-                            for (int i=0; i<ops[1]; i++) {
+                            for (int i=0; i<=ops[1]; i++) {
                                 registers[ops[1]] = *(ram_ptr + idx);
                                 idx++;
                             }
