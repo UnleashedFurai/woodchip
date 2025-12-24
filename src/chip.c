@@ -263,8 +263,8 @@ int decode(uint16_t op) {
         case 0xB:
             // BNNN
             // jump to address NNN + V0
-            // TODO: implement
-            return -1;
+            uint16_t offset = op & 0x0FFF;
+            pc = ram_ptr + (registers[0] + addr);
             break;
 
         case 0xC:
