@@ -175,7 +175,7 @@ int decode(uint16_t op) {
                     registers[ops[1]] = registers[ops[1]] ^ registers[ops[2]];
                     break;
 
-                case 0x4: {
+                case 0x4:
                     // 8XY4
                     // add the value of VY to VX
                     // set VF to 01 if a carry occurs
@@ -186,19 +186,15 @@ int decode(uint16_t op) {
                     if (registers[ops[1]] <= tmp_vx) registers[0xF] = 1;
                     else registers[0xF] = 0;
                     break; 
-                } 
 
-                case 0x5: {
+                case 0x5:
                     // 8XY5
                     // subtract the value of VY from VX
                     // set VF to 00 if a borrow occurs
                     // set VF to 01 if no borrow occurs
-                    uint8_t difference = registers[ops[1]] - registers[ops[2]];
-
-                    if (registers[ops[1]] <= difference) registers[0xF] = 1;
-                    else registers[0xF] = 0;
+                    registers[0xF] = (registers[ops[1]] > registers[ops[2]]) ? 1 : 0;
+                    registers[ops[1]] -= registers[ops[2]];
                     break;
-                }
 
                 case 0x6:
                     // 8XY6
@@ -214,11 +210,8 @@ int decode(uint16_t op) {
                     // set VX to the value of VY minux VX
                     // set VF to 00 if a borrow occurs
                     // set VF to 01 if a no borrow occurs
-                    uint8_t tmp_vx = registers[ops[1]];
-                    registers[ops[1]] -= registers[ops[2]];
-
-                    if (registers[ops[1]] >= tmp_vx) registers[0xF] = 1;
-                    else registers[0xF] = 0;
+                    registers[0xF] = (registers[ops[2]] > registers[ops[1]]) ? 1 : 0;
+                    registers[ops[1]] =  registers[ops[2]] - registers[ops[1]];
                     break;
 
                 case 0xE:
