@@ -7,18 +7,21 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <time.h>
+
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_main.h>
 
 SDL_Window* sdl_window;
 SDL_Renderer* sdl_renderer;
 SDL_Event sdl_event;
+SDL_AudioSpec sdl_audio;
+SDL_AudioStream* sdl_audio_stream;
 
 int WINDOW_SIZE_MODIFIER = 16;
 int CHIP_8_CYCLES_PER_FRAME = 12;
 
 int init_sdl() {
-    if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS)) {
+    if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_EVENTS)) {
         printf("ERROR: Failed to initialize SDL3: %s\n", SDL_GetError());
         return -1;
     }
@@ -41,6 +44,15 @@ int init_sdl() {
         return -1;
     }
 
+    sdl_audio.freq = SOUND_SAMPLE_RATE;
+    sdl_audio.format = SDL_AUDIO_F32;
+    sdl_audio.channels = 1;
+    sdl_audio_stream = SDL_OpenAudioDeviceStream(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, &sdl_audio, NULL, NULL);
+    if (!sdl_audio_stream) {
+        printf("ERROR: Failed to create audio stream: %s\n", SDL_GetError());
+        return -1;
+    }
+
     SDL_SetRenderDrawColor(sdl_renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
     SDL_RenderPresent(sdl_renderer);
 
@@ -50,6 +62,7 @@ int init_sdl() {
 int destroy_sdl() {
     SDL_DestroyRenderer(sdl_renderer);
     SDL_DestroyWindow(sdl_window);
+    SDL_Quit();
     return 0;
 }
 
@@ -103,8 +116,23 @@ void draw_screen() {
     SDL_RenderPresent(sdl_renderer);
 }
 
-void play_sound() {
-    printf("play sound here!!!\n");
+void play_sound(int play) {
+    if (play) {
+        int sample_size = 1024;
+        const float phase_increment = 2.0f * SDL_PI_F * SOUND_FREQUENCY / (float)SOUND_SAMPLE_RATE;
+        static float current_phase = 0.0f;
+        float samples[sample_size];
+        for (int i=0; i<sample_size; i++) {
+            samples[i] = SDL_sinf(current_phase);
+            current_phase+=phase_increment;
+            if (current_phase >=2 * SDL_PI_F)
+                current_phase -= 2*SDL_PI_F;
+        }
+        SDL_PutAudioStreamData(sdl_audio_stream, samples, sizeof(samples));
+        SDL_ResumeAudioStreamDevice(sdl_audio_stream);
+    } else {
+        SDL_PauseAudioStreamDevice(sdl_audio_stream);
+    }
 }
 
 void program_loop() {
@@ -150,7 +178,7 @@ void program_loop() {
             if (status.sound_status) sound = 1;
         }
         if (draw) draw_screen();
-        if (sound) play_sound();
+        play_sound(sound);
         decrement_timers();
 
         // cap at 60FPS

@@ -11,4 +11,7 @@
 #define BLACK                       0 ,0 ,0 ,255
 #define WHITE                       255, 255, 255, 255
 
+#define SOUND_SAMPLE_RATE           44100
+#define SOUND_FREQUENCY             440
+
 #endif
