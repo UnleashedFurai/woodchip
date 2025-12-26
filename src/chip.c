@@ -1,4 +1,5 @@
 #include "macros.h"
+#include "chip_return.h"
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -510,22 +511,21 @@ int decrement_timers() {
     return 0;
 }
 
-// returns 1 if screen needs to be updated
-int chip_cycle() {
+struct chip_return chip_cycle() {
+    struct chip_return status = {0};
+
     uint16_t op = fetch();
 
-    int decode_status = decode(op);
-    if(decode_status < 0) {
+    status.decode_status = decode(op);
+    if(status.decode_status < 0) {
         printf("ERROR: Failed to decode instruction: %x\n", op);
-        return -1;
+        struct chip_return fail = {-1, -1};
+        return fail;
     }
 
-    // decremet timers
-    if (sound_timer > 0) {
-        // TODO: play sound
-    }
+    status.sound_status = sound_timer;
 
-    return (decode_status == 1) ? 1 : 0;
+    return status;
 }
 
 int chip_init(char* filename) {

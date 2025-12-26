@@ -1,6 +1,7 @@
 #include "chip.h"
 #include "usage.h"
 #include "macros.h"
+#include "chip_return.h"
 
 #include <stdlib.h>
 #include <stdint.h>
@@ -102,6 +103,10 @@ void draw_screen() {
     SDL_RenderPresent(sdl_renderer);
 }
 
+void play_sound() {
+    printf("play sound here!!!\n");
+}
+
 void program_loop() {
     int running = 0;
     while (running == 0) {
@@ -138,9 +143,14 @@ void program_loop() {
         }
         
         int draw = 0;
-        for (int i=0; i<CHIP_8_CYCLES_PER_FRAME; i++)
-            if (chip_cycle()) draw = 1;
+        int sound = 0;
+        for (int i=0; i<CHIP_8_CYCLES_PER_FRAME; i++) {
+            struct chip_return status = chip_cycle();
+            if (status.decode_status) draw = 1;
+            if (status.sound_status) sound = 1;
+        }
         if (draw) draw_screen();
+        if (sound) play_sound();
         decrement_timers();
 
         // cap at 60FPS
